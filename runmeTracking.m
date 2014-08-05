@@ -6,7 +6,7 @@ dt = 0.1;
 v = Unicycle('InitialConditions',[8;-5;0]);
 
 
-%% Constraints 
+%% Constraints
 % Imposed
 uBound    = 3;    % |u| < uBound
 rBound    = 2*pi; % |r| < rBound
@@ -31,11 +31,25 @@ mpcOp.addTerminalErrorConstraint(dPdBound);
 
 
 %% MpcOp solver
-mpcOpSolver = AcadoMpcOpSolver(...
-    'MpcOp'                            , mpcOp,...
-    'StepSize'                         , dt,...
-    'AcadoOptimizationAlgorithmOptions', {'KKT_TOLERANCE',1e-4,'MAX_NUM_ITERATIONS',30 } ...
-    );
+if exist('BEGIN_ACADO') % Use ACADO if available, else use fmincon
+    
+    mpcOpSolver = AcadoMpcOpSolver(...
+        'MpcOp'                            , mpcOp,...
+        'StepSize'                         , dt,...
+        'AcadoOptimizationAlgorithmOptions', {'KKT_TOLERANCE',1e-4,'MAX_NUM_ITERATIONS',30 } ...
+        );
+    solverParameters = [];
+    
+else
+    
+    disp('WARNING: Modify solverParameters to improve the quality of the solution.')
+    
+    mpcOp.useSymbolicEvaluation();
+    mpcOpSolver      = FminconMpcOpSolver('MpcOp', DtMpcOp(mpcOp,dt),'DiscretizationStep',dt);
+    solverParameters = {'SolverOptions',optimset('Algorithm','interior-point','MaxIter',5)};
+    
+end
+
 
 
 %% Mpc Controller
@@ -43,7 +57,7 @@ v.controller = MpcController(...
     'MpcOp'                 , mpcOp,...
     'MpcOpSolver'           , mpcOpSolver,...
     'WarmStartMode'         , 1, ...
-    'MpcOpSolverParameters' , {'SolverOptions',optimset('Algorithm','sqp','MaxIter',5)} ...
+    'MpcOpSolverParameters' , solverParameters ...
     );
 
 
