@@ -135,8 +135,7 @@ classdef MpcOpTrackingECC13 < CtMpcOp
             
             e = obj.auxiliaryLaw.computeError(t,x);
             K = obj.auxiliaryLaw.Ke;
-            
-            lyap_const = [2,0.5,0.5,norm(K)];
+            lyap_const = [2,0.5,0.5,min(real(eigs(K)))];
             aa         = [0,max(real(eigs(obj.Q + K'*obj.O*K)))];
             cost       = terminalCostExponentialBoundLyap(e,lyap_const,aa);
             

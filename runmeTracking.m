@@ -38,7 +38,7 @@ if exist('BEGIN_ACADO') % Use ACADO if available, else use fmincon
         'StepSize'                         , dt,...
         'AcadoOptimizationAlgorithmOptions', {'KKT_TOLERANCE',1e-4,'MAX_NUM_ITERATIONS',30 } ...
         );
-    solverParameters = [];
+    solverParameters = {};
     
 else
     

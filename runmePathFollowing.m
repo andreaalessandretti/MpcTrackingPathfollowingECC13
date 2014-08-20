@@ -14,7 +14,7 @@ v.f  = @(t,x,u)[oldf(t,x,u);u(v.nu)];
 % Imposed
 uBound      = 3;    % |u| < uBound
 rBound      = 2*pi; % |r| < rBound
-dGammaBound = 2;  %| d/dt gamma(t) | < dGammaBound
+dGammaBound = 2;    %| d/dt gamma(t) | < dGammaBound
 
 
 % Observed
@@ -45,7 +45,7 @@ if exist('BEGIN_ACADO') % Use ACADO if available, else use fmincon
         'StepSize'                         , dt,...
         'AcadoOptimizationAlgorithmOptions', {'KKT_TOLERANCE',1e-4,'MAX_NUM_ITERATIONS',30 } ...
         );
-    solverParameters = [];
+    solverParameters = {};
     
 else
     
@@ -74,7 +74,3 @@ a = VirtualArena(v,...
     'DiscretizationStep' , dt);
 
 ret = a.run();
-figure
-ret{1}.stateTrajectory
-u = ret{1}.inputTrajectory(end,:);
-plot(u)

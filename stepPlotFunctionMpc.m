@@ -9,7 +9,12 @@ end
 
 
 %% Plot path
-pd = agentsList{1}.controller.mpcOp.auxiliaryLaw.pd;
+if isprop(agentsList{1}.controller.mpcOp,'pdGamma')
+    pd = agentsList{1}.controller.mpcOp.pdGamma;
+else
+    pd = agentsList{1}.controller.mpcOp.auxiliaryLaw.pd;
+end
+
 t = i*dt;
 
 T = agentsList{1}.controller.mpcOp.horizonLength;

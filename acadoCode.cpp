@@ -44,8 +44,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     acadoPrintf("\nACADO Toolkit for Matlab - Developed by David Ariens and Rien Quirynen, 2009-2013 \n"); 
     acadoPrintf("Support available at http://www.acadotoolkit.org/matlab \n \n"); 
 
-    if (nrhs != 5){ 
-      mexErrMsgTxt("This problem expects 5 right hand side argument(s) since you have defined 5 MexInput(s)");
+    if (nrhs != 6){ 
+      mexErrMsgTxt("This problem expects 6 right hand side argument(s) since you have defined 6 MexInput(s)");
     } 
  
     TIME autotime;
@@ -53,9 +53,11 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     DifferentialState x1;
     DifferentialState x2;
     DifferentialState x3;
+    DifferentialState x4;
     DifferentialState L;
     Control u1;
     Control u2;
+    Control u3;
     double *mexinput0_temp = NULL; 
     if( !mxIsDouble(prhs[0]) || mxIsComplex(prhs[0]) || !(mxGetM(prhs[0])==1 && mxGetN(prhs[0])==1) ) { 
       mexErrMsgTxt("Input 0 must be a noncomplex scalar double.");
@@ -85,14 +87,21 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     double mexinput3 = *mexinput3_temp; 
 
     double *mexinput4_temp = NULL; 
-    if( !mxIsDouble(prhs[4]) || mxIsComplex(prhs[4]) ) { 
-      mexErrMsgTxt("Input 4 must be a noncomplex double vector of dimension XxY.");
+    if( !mxIsDouble(prhs[4]) || mxIsComplex(prhs[4]) || !(mxGetM(prhs[4])==1 && mxGetN(prhs[4])==1) ) { 
+      mexErrMsgTxt("Input 4 must be a noncomplex scalar double.");
     } 
     mexinput4_temp = mxGetPr(prhs[4]); 
-    Matrix mexinput4(mxGetM(prhs[4]), mxGetN(prhs[4]));
-    for( int i=0; i<mxGetN(prhs[4]); ++i ){ 
-        for( int j=0; j<mxGetM(prhs[4]); ++j ){ 
-           mexinput4(j,i) = mexinput4_temp[i*mxGetM(prhs[4]) + j];
+    double mexinput4 = *mexinput4_temp; 
+
+    double *mexinput5_temp = NULL; 
+    if( !mxIsDouble(prhs[5]) || mxIsComplex(prhs[5]) ) { 
+      mexErrMsgTxt("Input 5 must be a noncomplex double vector of dimension XxY.");
+    } 
+    mexinput5_temp = mxGetPr(prhs[5]); 
+    Matrix mexinput5(mxGetM(prhs[5]), mxGetN(prhs[5]));
+    for( int i=0; i<mxGetN(prhs[5]); ++i ){ 
+        for( int j=0; j<mxGetM(prhs[5]); ++j ){ 
+           mexinput5(j,i) = mexinput5_temp[i*mxGetM(prhs[5]) + j];
         } 
     } 
 
@@ -101,27 +110,31 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     acadodata_f1 << dot(x1) == cos(x3)*u1;
     acadodata_f1 << dot(x2) == sin(x3)*u1;
     acadodata_f1 << dot(x3) == u2;
-    acadodata_f1 << dot(L) == (((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*1.000000E+01*sin(x3)+2.000000E+00)*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01)+((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*1.000000E+01*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*1.000000E+01*cos(x3))*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3))+pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/1.000000E+01*sin(x3)-1/2.000000E+00*cos(1/2.000000E+01*t)*sin(x3)+1/2.000000E+00*cos(x3)*sin(1/2.000000E+01*t)+2.000000E-02+u1),2.000000E+00)+pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/2.000000E+00*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/2.000000E+00*cos(x3)+1/2.000000E+00*5.000000E+00*cos(1/2.000000E+01*t)*cos(x3)+1/2.000000E+00*5.000000E+00*sin(1/2.000000E+01*t)*sin(x3)-u2),2.000000E+00));
+    acadodata_f1 << dot(x4) == u3;
+    acadodata_f1 << dot(L) == (((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*1.000000E+01*sin(x3)+2.000000E+00)*((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*sin(x3)+2.000000E-01)+((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*1.000000E+01*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*1.000000E+01*cos(x3))*((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*cos(x3))+pow(((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)/1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)/1.000000E+01*sin(x3)-1/2.000000E+00*cos(1/2.000000E+01*x4)*sin(x3)*u3+1/2.000000E+00*cos(x3)*sin(1/2.000000E+01*x4)*u3+2.000000E-02+u1),2.000000E+00)+pow(((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)/2.000000E+00*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)/2.000000E+00*cos(x3)+1/2.000000E+00*5.000000E+00*cos(1/2.000000E+01*x4)*cos(x3)*u3+1/2.000000E+00*5.000000E+00*sin(1/2.000000E+01*x4)*sin(x3)*u3-u2),2.000000E+00)+pow((-1.000000E+00+u3),2.000000E+00));
 
     OCP ocp1(0, 0.5, 5);
-    ocp1.minimizeMayerTerm((1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01),2.000000E+00)+1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3)),2.000000E+00)+L));
+    ocp1.minimizeMayerTerm((1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*sin(x3)+2.000000E-01),2.000000E+00)+1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*cos(x3)),2.000000E+00)+L));
     ocp1.subjectTo(acadodata_f1);
     ocp1.subjectTo(AT_START, t == mexinput0);
     ocp1.subjectTo(AT_START, x1 == mexinput1);
     ocp1.subjectTo(AT_START, x2 == mexinput2);
     ocp1.subjectTo(AT_START, x3 == mexinput3);
+    ocp1.subjectTo(AT_START, x4 == mexinput4);
     ocp1.subjectTo(AT_START, L == 0.000000E+00);
     ocp1.subjectTo((-3.000000E+00+u1) <= 0.000000E+00);
     ocp1.subjectTo((-6.283185E+00+u2) <= 0.000000E+00);
+    ocp1.subjectTo((-2.000000E+00+u3) <= 0.000000E+00);
     ocp1.subjectTo((-3.000000E+00-u1) <= 0.000000E+00);
     ocp1.subjectTo(((-6.283185E+00)-u2) <= 0.000000E+00);
-    ocp1.subjectTo(AT_END, (((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01)*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/2.000000E+00*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/2.000000E+00*sin(x3)+1.000000E-01)+((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3))*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/2.000000E+00*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/2.000000E+00*cos(x3))-2.862498E+01) <= 0.000000E+00 <= 0.000000E+00);
+    ocp1.subjectTo((-2.000000E+00-u3) <= 0.000000E+00);
+    ocp1.subjectTo(AT_END, (((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*sin(x3)+2.000000E-01)*((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)/2.000000E+00*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)/2.000000E+00*sin(x3)+1.000000E-01)+((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)*cos(x3))*((-1.000000E+01*cos(1/2.000000E+01*x4)+x1)/2.000000E+00*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*x4)+x2)/2.000000E+00*cos(x3))-2.862498E+01) <= 0.000000E+00 <= 0.000000E+00);
 
 
     OptimizationAlgorithm algo1(ocp1);
     algo1.set( KKT_TOLERANCE, 1.000000E-04 );
     algo1.set( MAX_NUM_ITERATIONS, 30 );
-    algo1.initializeControls( mexinput4 );
+    algo1.initializeControls( mexinput5 );
     returnValue returnvalue = algo1.solve();
 
     VariablesGrid out_states; 

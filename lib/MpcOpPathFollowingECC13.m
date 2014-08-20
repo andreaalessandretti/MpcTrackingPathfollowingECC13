@@ -52,6 +52,8 @@ classdef MpcOpPathFollowingECC13 < MpcOpTrackingECC13
         
         o         = 1;
         dGammaDes = 1;
+        pdGamma;
+        pdDotGamma;
         
     end
     
@@ -110,13 +112,24 @@ classdef MpcOpPathFollowingECC13 < MpcOpTrackingECC13
                 
                 
             end
-           
             
-            obj.stageCost    = @(t,x,u)obj.myStageCost    (x(end),x(1:end-1),u(1:end-1)) + (u(end)-obj.dGammaDes)^2*obj.o;
+            obj.stageCost    = @obj.myStageCost ;
             obj.terminalCost = @(t,x)  obj.myTerminalCost (x(end),x(1:end-1));
+            obj.pdGamma      = obj.auxiliaryLaw.pd;
+            obj.pdDotGamma   = obj.auxiliaryLaw.dotPd;
             
         end
         
+        function cost = myStageCost(obj,t,x,u)
+            
+            obj.auxiliaryLaw.pd     = @(gamma) obj.pdGamma(x(end));
+            obj.auxiliaryLaw.dotPd  = @(t) obj.pdDotGamma(x(end))*u(end);
+            
+            e    = obj.auxiliaryLaw.computeError(t,x(1:end-1));
+            uAux = obj.auxiliaryLaw.computeInput(t,x(1:end-1));
+            cost = e'*obj.Q*e + (u(1:end-1)-uAux)'*obj.O*(u(1:end-1)-uAux) +  (u(end)-obj.dGammaDes)^2*obj.o;
+            
+        end
         
         
     end
