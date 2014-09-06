@@ -33,16 +33,14 @@ else
     
 end
 
-h(1) = plot(pdAll(1,:),pdAll(2,:),'r--'); hold on 
+h(1) = plot(pdAll(1,:),pdAll(2,:),'r--','Linewidth',2); hold on 
 h(2) = plot(pdt(1),pdt(2),'ro');
 
 %% Plot state trajectory
-h(3) = plot(x(1,:),x(2,:));
+h(3) = plot(x(1,:),x(2,:),'Linewidth',2);
 
 %% Plot prediction
 
-h(4) = plot(x_opt(1,:),x_opt(2,:),'--');hold on;
-
-grid on
+h(4) = plot(x_opt(1,:),x_opt(2,:),'--','Linewidth',2);hold on;
 
 end
