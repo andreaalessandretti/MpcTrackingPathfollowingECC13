@@ -1,5 +1,3 @@
-
-
 function h = stepPlotFunctionMpc(agentsList,hist,plot_handles,i,dt,tt)
 
 
@@ -19,7 +17,7 @@ t = i*dt;
 
 T = agentsList{1}.controller.mpcOp.horizonLength;
 
-x = hist{1}.stateTrajectory(:,1:i-1); hold on;
+x = hist{1}.stateTrajectory(:,1:i); hold on;
 
 x_opt = agentsList{1}.controller.lastSolution.x_opt;
 
