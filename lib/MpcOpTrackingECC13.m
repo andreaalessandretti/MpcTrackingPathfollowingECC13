@@ -136,7 +136,7 @@ classdef MpcOpTrackingECC13 < CtMpcOp
             e = obj.auxiliaryLaw.computeError(t,x);
             K = obj.auxiliaryLaw.Ke;
             lyap_const = [2,0.5,0.5,min(real(eigs(K)))];
-            aa         = [0,max(real(eigs(obj.Q + K'*obj.O*K)))];
+            aa         = [0,max(real(eigs(obj.Q)))];
             cost       = terminalCostExponentialBoundLyap(e,lyap_const,aa);
             
         end
@@ -163,16 +163,16 @@ classdef MpcOpTrackingECC13 < CtMpcOp
             
             k   = dPdBound*sqrt(sum(inv(Delta).^2,2));
             n   = vehicle.n;
-            b01 = de2bi(0:2^n-1);
-            b   = b01.*2 - ones(size(b01));
-            
             nx = obj.auxiliaryLaw.vehicle.nx;
             nu = obj.auxiliaryLaw.vehicle.nu;
             
+            b01 = de2bi(0:2^nu-1);
+            b   = b01.*2 - ones(size(b01));
             sCon = obj.stageConstraints{1};
-            uSet = sCon([1:2]);
             
-            vertexes = b'.*repmat(k,1,2^n);
+            uSet = sCon(find(sCon.indexesLowerBounds>nx));
+            
+            vertexes = b'.*repmat(k,1,2^nu);
             
             minInput = BoxSet(vertexes);
             
