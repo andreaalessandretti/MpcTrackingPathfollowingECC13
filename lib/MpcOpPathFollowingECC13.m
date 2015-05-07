@@ -131,6 +131,55 @@ classdef MpcOpPathFollowingECC13 < MpcOpTrackingECC13
             
         end
         
+        function addTerminalErrorConstraint(obj,dPdBound)
+            
+            vehicle = obj.auxiliaryLaw.vehicle;
+            epsilon = obj.auxiliaryLaw.epsilon;
+            
+            if vehicle.n ==2
+                
+                Delta = [1, epsilon(2);
+                    0,-epsilon(1)];
+                
+            elseif vehicle.n==3
+                
+                Delta = [1, 0         , -epsilon(3) ,  epsilon(2);
+                    0, epsilon(3), 0           , -epsilon(1);
+                    0,-epsilon(3), epsilon(1)  ,  0         ];
+                
+            else
+                error('error');
+            end
+            
+            k   = dPdBound*sqrt(sum(inv(Delta).^2,2));
+            n   = vehicle.n;
+            nx = obj.auxiliaryLaw.vehicle.nx;
+            nu = obj.auxiliaryLaw.vehicle.nu;
+            
+            b01 = de2bi(0:2^(nu-1)-1);
+            b   = b01.*2 - ones(size(b01));
+            sCon = obj.stageConstraints{1};
+            
+            uSet = sCon(find(sCon.indexesLowerBounds>nx & sCon.indexesLowerBounds<nx+nu));
+            
+            vertexes = b'.*repmat(k,1,2^(nu-1));
+            
+            minInput = BoxSet(vertexes);
+            
+            if not(uSet.contains(minInput))
+                error('The input constraint set is to small for the desired maneuvers.');
+            end
+            
+            
+            availableSet = uSet - minInput;
+            
+            K     = -obj.auxiliaryLaw.PinvE*obj.auxiliaryLaw.Ke;
+            aplha = getLargestEllipseInPolytope(availableSet.A*K,availableSet.b,0.5*eye(n));
+            
+            sSet = EllipsoidalSet(0.5*eye(n),aplha^2);
+            
+            obj.terminalConstraints = {GeneralSet( @(x) sSet.f(obj.auxiliaryLaw.computeError(x(1),x(2:end))) <= 0,vehicle.nx+1,1)};
+        end
         
     end
     

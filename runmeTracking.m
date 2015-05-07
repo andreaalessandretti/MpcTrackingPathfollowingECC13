@@ -1,10 +1,17 @@
+% The full description of the control algorithm can be found in the paper
+%
+% Alessandretti A., Aguiar A. P., Jones C. N. 
+% Trajectory-tracking and path-following controllers for constrained underactuated vehicles using Model Predictive Control. 
+% In Proc. of the 2013 European Control Conference (pp. 1371?1376).
+%
+% http://wiki.epfl.ch/projects/mpcttpf
+
 addpath('./lib');clc; close all;clear all
 
 dt = 0.1;
 
 %% Vehicle
-v = Unicycle('InitialConditions',[8;-5;0]);
-
+v = Unicycle('InitialCondition',[8;-5;0]);
 
 %% Constraints
 % Imposed
@@ -50,9 +57,6 @@ else
     
 end
 
-
-
-%% Mpc Controller
 v.controller = MpcController(...
     'MpcOp'                 , mpcOp,...
     'MpcOpSolver'           , mpcOpSolver,...
@@ -60,8 +64,6 @@ v.controller = MpcController(...
     'MpcOpSolverParameters' , solverParameters ...
     );
 
-
-%% Simulator
 a = VirtualArena(v,...
     'StoppingCriteria'   , @(i,agentsList) i>200,...
     'StepPlotFunction'   , @(systemsList,log,oldHandles,k) stepPlotFunctionMpc(systemsList,log,oldHandles,k,dt,1), ...

@@ -113,13 +113,13 @@ classdef MpcOpTrackingECC13 < CtMpcOp
                 %    error(getMessage('TrackingControllerECC14:wrongvehicle'));
                 %end
                 
-                parss = {varargin{:},'Vehicle',obj.system};
+            end
+            
+             parss = {varargin{:},'Vehicle',obj.system};
                 obj.auxiliaryLaw = TrackingControllerECC13(parss{:});
                 
                 obj.stageCost    = @obj.myStageCost;
                 obj.terminalCost = @obj.myTerminalCost;
-                
-            end
             
         end
         
@@ -140,6 +140,7 @@ classdef MpcOpTrackingECC13 < CtMpcOp
             cost       = terminalCostExponentialBoundLyap(e,lyap_const,aa);
             
         end
+        
         
         function addTerminalErrorConstraint(obj,dPdBound)
             

@@ -1,10 +1,18 @@
+% The full description of the control algorithm can be found in the paper
+%
+% Alessandretti A., Aguiar A. P., Jones C. N. 
+% Trajectory-tracking and path-following controllers for constrained underactuated vehicles using Model Predictive Control. 
+% In Proc. of the 2013 European Control Conference (pp. 1371?1376).
+%
+% http://wiki.epfl.ch/projects/mpcttpf
+
 addpath('./lib');clc; close all;clear all
 
 dt = 0.1;
 
 %% Vehicle
 % we add an extra state which is the parameter of the path
-v    = Unicycle('InitialConditions',[8;-5;0;0]);
+v    = Unicycle('InitialCondition',[8;-5;0;0]);
 v.nx = v.nx + 1;
 v.nu = v.nu + 1;
 oldf = v.f;
@@ -14,7 +22,7 @@ v.f  = @(t,x,u)[oldf(t,x,u);u(v.nu)];
 % Imposed
 uBound      = 3;    % |u| < uBound
 rBound      = 2*pi; % |r| < rBound
-dGammaBound = 5;    %| d/dt gamma(t) | < dGammaBound
+dGammaBound = 5;    % | d/dt gamma(t) | < dGammaBound
 
 
 % Observed
