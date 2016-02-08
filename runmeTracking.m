@@ -11,7 +11,7 @@ addpath('./lib');clc; close all;clear all
 dt = 0.1;
 
 %% Vehicle
-v = Unicycle('InitialCondition',[8;-5;0]);
+v = Unicycle('InitialConditions',[8;-5;0]);
 
 %% Constraints
 % Imposed

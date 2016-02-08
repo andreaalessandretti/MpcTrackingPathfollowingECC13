@@ -35,17 +35,21 @@
 
 USING_NAMESPACE_ACADO
 
+#include <mex.h>
+
 
 void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] ) 
  { 
  
+    MatlabConsoleStreamBuf mybuf;
+    RedirectStream redirect(std::cout, mybuf);
     clearAllStaticCounters( ); 
  
     mexPrintf("\nACADO Toolkit for Matlab - Developed by David Ariens and Rien Quirynen, 2009-2013 \n"); 
     mexPrintf("Support available at http://www.acadotoolkit.org/matlab \n \n"); 
 
-    if (nrhs != 5){ 
-      mexErrMsgTxt("This problem expects 5 right hand side argument(s) since you have defined 5 MexInput(s)");
+    if (nrhs != 6){ 
+      mexErrMsgTxt("This problem expects 6 right hand side argument(s) since you have defined 6 MexInput(s)");
     } 
  
     TIME autotime;
@@ -96,6 +100,18 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
         } 
     } 
 
+    double *mexinput5_temp = NULL; 
+    if( !mxIsDouble(prhs[5]) || mxIsComplex(prhs[5]) ) { 
+      mexErrMsgTxt("Input 5 must be a noncomplex double vector of dimension XxY.");
+    } 
+    mexinput5_temp = mxGetPr(prhs[5]); 
+    DMatrix mexinput5(mxGetM(prhs[5]), mxGetN(prhs[5]));
+    for( int i=0; i<mxGetN(prhs[5]); ++i ){ 
+        for( int j=0; j<mxGetM(prhs[5]); ++j ){ 
+           mexinput5(j,i) = mexinput5_temp[i*mxGetM(prhs[5]) + j];
+        } 
+    } 
+
     DifferentialEquation acadodata_f1;
     acadodata_f1 << dot(t) == 1.000000E+00;
     acadodata_f1 << dot(x1) == cos(x3)*u1;
@@ -104,7 +120,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     acadodata_f1 << dot(L) == (((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*1.000000E+01*sin(x3)+2.000000E+00)*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01)+((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*1.000000E+01*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*1.000000E+01*cos(x3))*((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3))+pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/1.000000E+01*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/1.000000E+01*sin(x3)-1/2.000000E+00*cos(1/2.000000E+01*t)*sin(x3)+1/2.000000E+00*cos(x3)*sin(1/2.000000E+01*t)+2.000000E-02+u1),2.000000E+00)+pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)/2.000000E+00*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)/2.000000E+00*cos(x3)+1/2.000000E+00*5.000000E+00*cos(1/2.000000E+01*t)*cos(x3)+1/2.000000E+00*5.000000E+00*sin(1/2.000000E+01*t)*sin(x3)-u2),2.000000E+00));
 
     OCP ocp1(0, 0.5, 5);
-    ocp1.minimizeMayerTerm((1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01),2.000000E+00)+1.001000E+03/2.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3)),2.000000E+00)+L));
+    ocp1.minimizeMayerTerm((5.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*cos(x3)+(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*sin(x3)+2.000000E-01),2.000000E+00)+5.000000E+01*pow(((-1.000000E+01*cos(1/2.000000E+01*t)+x1)*sin(x3)-(-1.000000E+01*sin(1/2.000000E+01*t)+x2)*cos(x3)),2.000000E+00)+L));
     ocp1.subjectTo(acadodata_f1);
     ocp1.subjectTo(AT_START, t == mexinput0);
     ocp1.subjectTo(AT_START, x1 == mexinput1);
@@ -121,6 +137,7 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     OptimizationAlgorithm algo1(ocp1);
     algo1.set( KKT_TOLERANCE, 1.000000E-04 );
     algo1.set( MAX_NUM_ITERATIONS, 30 );
+    algo1.initializeDifferentialStates( mexinput5 );
     algo1.initializeControls( mexinput4 );
     returnValue returnvalue = algo1.solve();
 
